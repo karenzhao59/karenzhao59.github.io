@@ -1,0 +1,238 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "SDS348"
+date: ''
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+# Modeling
+
+## Instructions
+
+A knitted R Markdown document (preferably HTML) and the raw R Markdown file (as .Rmd) should both be submitted to Canvas by 11:59pm on the due date. These two documents will be graded jointly, so they must be consistent (i.e., don’t change the R Markdown file without also updating the knitted document). In the .Rmd file for Project 2, you can copy the first code-chunk into your project .Rmd file to get better formatting. Notice that you can adjust the opts_chunk$set(...) above to set certain parameters if necessary to make the knitting cleaner (you can globally set the size of all plots, etc). You can copy the set-up chunk in Project2.Rmd: I have gone ahead and set a few for you (such as disabling warnings and package-loading messages when knitting)! 
+
+## Find data:
+
+https://vincentarelbundock.github.io/Rdatasets/datasets.html
+
+## Guidelines and Rubric
+
+- **0. (5 pts)** Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?
+
+```{R}
+collegedist_tidy <- read.csv("collegedist.csv")
+```
+*My dataset describes the distances between colleges and high school students' homes in 1980. There are 4,739 observations and 14 variables. The dataset included variables such as the gender and ethnicity of the students, as well as their base year composite test scores ("score"). The state hourly wage in manufacturing in 1980 was included as well. The fcollege and mcollege variables indicate whether or not the student's father and mother are college graduates, respectively. Whether or not the student's family owned a home was also included as well as the family income. The region in which the student lived was included as well, in addition to the county's unemployment rate in 1980 and the average tuition for a 4-year college in that state.*
+
+- **1. (15 pts)** Perform a MANOVA testing whether any of your numeric variables (or a subset of them, if including them all is unreasonable or doesn't make sense) show a mean difference across levels of one of your categorical variables (3). If they do, perform univariate ANOVAs to find response(s) showing a mean difference across groups (3), and perform post-hoc t tests to find which groups differ (3). Discuss the number of tests you have performed, calculate the probability of at least one type I error (if unadjusted), and adjust the significance level accordingly (bonferroni correction) before discussing significant differences (3). Briefly discuss some of the MANOVA assumptions and whether or not they are likely to have been met here (no need for anything too in-depth) (2).
+
+```{R}
+library(dplyr)
+library(mvtnorm)
+library(ggExtra)
+
+collegedist <- collegedist_tidy
+set.seed(1234)
+dplyr::sample_n(collegedist, 10)
+
+#MANOVA
+man1 <- manova(cbind(score, tuition, wage)~gender, data=collegedist)
+summary(man1)
+summary.aov(man1)
+pairwise.t.test(collegedist$score, collegedist$gender, p.adj="none")
+pairwise.t.test(collegedist$tuition, collegedist$gender, p.adj="none")
+pairwise.t.test(collegedist$wage, collegedist$gender, p.adj="none")
+
+#Type I error rate = 0.3016627
+1-0.95^7
+
+#Bonferroni correction = 0.007142857
+0.05/7
+```
+*The overall MANOVA is significant. 1 MANOVA, 3 ANOVA, and 3 t-tests were performed. The probability of at least one type I error was 0.3016627. After adjusting the significance level using the Bonferroni correction, it is 0.007142857. Male and female students seem to differ significantly in terms of base year composite test scores, but do not differ significantly in terms of the average tuition for a 4-year college near them or their state's hourly wage in manufacturing in 1980. MANOVA assumptions include random sampling, independent observations, multivariate normality of DVs, homogeneity of within-group covariance matrices, linear relationships among DVs, no extreme univariate or multivariate outliers, and no multicollinearity; in order words, DVs cannot be too correlated with each other. These assumptions are most likely not met.*
+
+- **2. (10 pts)** Perform some kind of randomization test on your data (that makes sense). The statistic can be anything you want (mean difference, correlation, F-statistic/ANOVA, chi-squared), etc. State null and alternative hypotheses, perform the test, and interpret the results (7). Create a plot visualizing the null distribution and the test statistic (3).
+
+```{R}
+library(tidyverse)
+set.seed(348)
+head(collegedist)
+collegedist %>% group_by(gender) %>% summarize(means=mean(unemp)) %>% summarize('mean_diff'=diff(means))
+rand_dist <- vector()
+for(i in 1:5000){
+  new <- data.frame(unemp=sample(collegedist$unemp), gender=collegedist$gender)
+  rand_dist[i] <- mean(new[new$gender=="female",]$unemp)- mean(new[new$gender=="male",]$unemp)
+}
+{hist(rand_dist,main="", ylab=""); abline(v = c(-0.158, 0.158), col="red")}
+#two-tailed p value 
+mean(rand_dist>0.158 | rand_dist< -0.158)
+t.test(data=collegedist, unemp~gender)
+```
+*Ho: mean unemployment rate is the same for females vs males. Ha: mean unemployment rate is different for females vs males. The p-value of 0.051 indicates that the test is not statistically significant and indicates strong evidence in support of the null hypothesis. Therefore, we fail to reject the null hypothesis and reject the alternative hypothesis, concluding that the mean unemployment rate is different for females vs males.*
+
+- **3. (40 pts)** Build a linear regression model predicting one of your response variables from at least 2 other variables, including their interaction. Mean-center any numeric variables involved in the interaction.
+
+```{R}
+library(lmtest)
+library(sandwich)
+fit<-lm(score ~ tuition + wage, data = collegedist)
+summary(fit)
+ggplot(collegedist, aes(x=tuition + wage, y=score, group = gender)) + geom_point(aes(color=gender)) + geom_smooth(method="lm", formula=y~1, se=F, fullrange=T, aes(color=gender)) + theme(legend.position=c(0.9, 0.19)) + xlab("")
+resids <- fit$residuals
+fitvals <- fit$fitted.values
+ggplot() + geom_point(aes(fitvals, resids)) + geom_hline(yintercept=0, color='red')
+par(mfrow=c(1,2));hist(resids);qqnorm(resids);qqline(resids, col='red')
+coeftest(fit, vcov=vcovHC(fit)) 
+summary(fit)
+```
+*The coefficient estimate for tuition shows that for every 1000 USD increase in tuition, the score increases by 2.64574. The coefficient estimate for wage shows that for every $1 increase in hourly wage on average, the score increases by 0.54315. The standard error for the intercept is 0.89304. The standard error for tuition is 0.38822. The standard error for wage is 0.09814. From the graph, it appears that linearity, normality, and homoskedasticity look fine. THe standard error did not differ. The new standard error for the intercept is 0.886536. The new standard error for tuition is 0.390475. The new standard error for wage is 0.097813. The proportion of the variation in the outcome of the model explained is 0.02277.*
+
+- **4. (5 pts)** Rerun same regression model (with the interaction), but this time compute bootstrapped standard errors (either by resampling observations or residuals). Discuss any changes you observe in SEs and p-values using these SEs compared to the original SEs and the robust SEs)
+
+```{R}
+boot_dat <- sample_frac(collegedist, replace=T)
+samp_distn <- replicate(5000, {
+  boot_dat <- sample_frac(collegedist, replace=T)
+  fit <- lm(score ~ tuition + wage, data=boot_dat)
+  coef(fit)
+})
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+```
+*The new intercept is 0.8926046. The new standard error for tuition is 0.3870123. The new standard error for wage is 0.09890067.*
+
+- **5. (30 pts)** Fit a logistic regression model predicting a binary variable (if you don't have one, make/get one) from at least two explanatory variables (interaction not necessary). 
+
+```{R}
+library(tidyverse)
+library(lmtest)
+library(plotROC)
+data <- collegedist %>% mutate(y=ifelse(gender=="female",1,0))
+data$gender <- factor(data$gender, levels=c("female", "male"))
+head(data)
+data <- na.omit(data)
+fit2<- glm(y~score + tuition, data=data, family = "binomial")
+coeftest(fit2)
+probs <- predict(fit2, type="response")
+table(predict=as.numeric(probs>0.5), truth=data$y) %>% addmargins
+class_diag<- function(probs, truth){
+  #CONFUSION MATRIX: CALLCULATE ACCURACY, TPR, TNR, PPV
+  probs <- na.omit(probs)
+  tab <- table(factor(probs>0.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+  
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  n <- length(TPR)
+  auc <- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+class_diag(probs, data$y)
+data$logit<-predict(fit2, type="link")
+data%>%ggplot() + geom_density(aes(logit, color=gender, fill=gender), alpha=0.4) + theme(legend.position=c(0.85, 0.85)) + geom_vline(xintercept=1)+xlab("logit (log-odds)") + geom_rug(aes(logit, color=gender))
+ROCplot<-ggplot(data)+geom_roc(aes(d=gender, m=probs), n.cuts=0)
+ROCplot
+calc_auc(ROCplot)
+```
+*Because the coefficient estimates in context are negative for score and positive for tuition, it is likely that the two predictors significantly increase the probability of the gender of the student being male. Accuracy=0.562988. Sensitivity (TPR)=0.8984615. Specificity (TNR)=0.1552127. Precision (PPV)=0.5638426. AUC=0.5469405.
+The AUC from the ROC plot is 0.04530623. The AUC decreased.*
+
+- **6. (25 pts)** Perform a logistic regression predicting the same binary response variable from *ALL* of the rest of your variables (the more, the better!) 
+
+```{R}
+
+```
+**
+
+## Where do I find data again?
+
+You can choose ANY datasets you want that meet the above criteria for variables and observations. You can make it as serious as you want, or not, but keep in mind that you will be incorporating this project into a portfolio webpage for your final in this course, so choose something that really reflects who you are, or something that you feel will advance you in the direction you hope to move career-wise, or something that you think is really neat, or whatever. On the flip side, regardless of what you pick, you will be performing all the same tasks, so it doesn't end up being that big of a deal.
+
+If you are totally clueless and have no direction at all, log into the server and type 
+
+```{R eval=F}
+data(package = .packages(all.available = TRUE))
+```
+
+This will print out a list of **ALL datasets in ALL packages** installed on the server (a ton)! Scroll until your eyes bleed! Actually, do not scroll that much... To start with something more manageable, just run the command on your own computer, or just run `data()` to bring up the datasets in your current environment. To read more about a dataset, do `?packagename::datasetname`. 
+
+If it is easier for you, and in case you don't have many packages installed, a list of R datasets from a few common packages (also downloadable in CSV format) is given at the following website: https://vincentarelbundock.github.io/Rdatasets/datasets.html.
+
+- A good package to download for fun/relevant data is `fivethiryeight`. 
+Run `install.packages("fivethirtyeight"),` load the packages with `library(fivethirtyeight)`, run `data()`, and then scroll down to view the datasets. Here is an online list of all 127 datasets (with links to the 538 articles). Lots of sports, politics, current events, etc.
+
+- If you have already started to specialize (e.g., ecology, epidemiology) you might look at discipline-specific R packages (vegan, epi, respectively). We will be using some tools from these packages later in the course, but they come with lots of data too, which you can explore according to the directions above
+
+- However, you *emphatically DO NOT* have to use datasets available via R packages! In fact, I would much prefer it if you found the data from completely separate sources and brought them together (a much more realistic experience in the real world)! You can even reuse data from your SDS328M project, provided it shares a variable in common with other data which allows you to  merge the two together (e.g., if you still had the timestamp, you could look up the weather that day: https://www.wunderground.com/history/). If you work in a research lab or have access to old data, you could potentially merge it with new data from your lab!
+
+- Here is a curated list of interesting datasets (read-only spreadsheet format): https://docs.google.com/spreadsheets/d/1wZhPLMCHKJvwOkP4juclhjFgqIY8fQFMemwKL2c64vk/edit
+
+- Here is another great compilation of datasets: https://github.com/rfordatascience/tidytuesday
+
+- Here is the UCI Machine Learning Repository: https://archive.ics.uci.edu/ml/index.php
+
+    - See also https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research#Biological_data
+
+- Here is another good general place to look: https://www.kaggle.com/datasets
+
+- To help narrow your search down or to see interesting variable ideas, check out https://www.tylervigen.com/spurious-correlations. This is the spurious correlations website, and it is fun, but if you look at the bottom of each plot you will see sources for the data. This is a good place to find very general data (or at least get a sense of where you can scrape data together from)!
+
+- If you are interested in medical data, check out www.countyhealthrankings.org
+
+- If you are interested in scraping UT data, they make *loads* of data public (e.g., beyond just professor CVs and syllabi). Check out all the data that is available in the statistical handbooks: https://reports.utexas.edu/statistical-handbook
+
+##### Broader data sources:
+
+[Data.gov](www.data.gov) 186,000+ datasets!
+
+[Social Explorer](Social Explorer) is a nice interface to Census and American Community Survey data (more user-friendly than the government sites). May need to sign up for a free trial.
+
+[U.S. Bureau of Labor Statistics](www.bls.gov)
+
+[U.S. Census Bureau](www.census.gov)
+
+[Gapminder](www.gapminder.org/data), data about the world.
+
+...
+
+
+
+
+

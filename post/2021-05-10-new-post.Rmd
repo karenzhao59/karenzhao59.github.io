@@ -1,0 +1,18 @@
+---
+title: New Post
+author: 'Karen Zhao'
+date: '2021-05-10'
+slug: new-post
+categories: []
+tags: []
+description: 'a bunch of nonsense'
+---
+[Link to project 1](/project/project1/)
+
+[Link to google](https://www.google.com)
+
+```{r}
+```
+
+```{python}
+```

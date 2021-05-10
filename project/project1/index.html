@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Chris Turner" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="introduction-5-pts" class="section level4">
+<h4>0. Introduction (5 pts)</h4>
+<p>I chose to focus on amusement parks, specifically the injuries sustained by amusement park goers, for my project simply because I have always loved going to amusement parks. However, I never gave much thought to just how dangerous the rides were and how many people actually sustained severe injuries from them. The dataset I chose was provided by RPubs, and it provides a variety of details about the injuries sustained by amusement park goers at different amusement parks in Texas. I then started thinking about other variables that would be related to amusement park injuries, and the one I found most fitting was the median household income for each Texas city; I found this dataset on indexmundi.com. I then downloaded it as a csv file and uploaded it to R. I think I will find a negative correlation between the median household income of the city and the total number of amusement park injuries that occur at amusement parks in that city. I believe that the lower the median household income of the city, the less funds the city has to allocate towards entertainment and infrastructure. Therefore, the lower the quality and sturdiness of the amusement park rides and the higher the number of injuries sustained on them.</p>
+</div>
+<div id="tidying-rearranging-widelong-10-pts" class="section level4">
+<h4>1. Tidying: Rearranging Wide/Long (10 pts)</h4>
+<pre class="r"><code>library(tidyverse)
+tx_injuries &lt;- readr::read_csv(&quot;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-10/tx_injuries.csv&quot;)
+library(readr)
+txmedianhouseholdincome &lt;- read.csv(&quot;tx median household income.csv&quot;)</code></pre>
+<p><em>Both datasets were tidy, so pivot_wider and pivot_longer were not used in this part of the document.</em></p>
+</div>
+<div id="joiningmerging-10-pts" class="section level4">
+<h4>2. Joining/Merging (10 pts)</h4>
+<pre class="r"><code>left_join(tx_injuries, txmedianhouseholdincome)</code></pre>
+<pre><code>## # A tibble: 542 x 14
+##    injury_report_r… name_of_operati… city  st    injury_date ride_name serial_no
+##               &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;    
+##  1             2032 Skygroup Invest… Aust… TX    2/12/2013   I Fly     SV024    
+##  2             1897 Willie G&#39;s Post… Galv… TX    3/2/2013    Gulf Gli… GS-11-10…
+##  3              837 Great Wolf Lodge Grap… TX    3/3/2013    Howlin T… 0643-C1-…
+##  4               99 Six Flags Fiest… San … TX    3/3/2013    Scooby D… n/a      
+##  5               55 Ray Cammack Sho… Lave… AZ    3/11/2013   Alien Ab… 862162   
+##  6              780 ZDT&#39;s Amusement… Segu… TX    3/12/2013   Go Karts  n/a      
+##  7              253 Six Flags Over … Arli… TX    3/15/2013   Gold Riv… 01-0511  
+##  8              253 Six Flags Over … Arli… TX    3/15/2013   Titan     COCO62   
+##  9               55 Ray Cammack Sho… Lave… AZ    3/16/2013   Wild Riv… 97-05-00…
+## 10               55 Ray Cammack Sho… Lave… AZ    3/16/2013   Sky Ride… A-878-B  
+## # … with 532 more rows, and 7 more variables: gender &lt;chr&gt;, age &lt;chr&gt;,
+## #   body_part &lt;chr&gt;, alleged_injury &lt;chr&gt;, cause_of_injury &lt;chr&gt;, other &lt;chr&gt;,
+## #   value &lt;fct&gt;</code></pre>
+<p><em>I performed a left join because I wanted the median household income of each city to be listed along with the variables regarding the amusement park injuries that occurred in that city. There were no cases that were dropped.</em></p>
+</div>
+<div id="wrangling-40-pts" class="section level4">
+<h4>3. Wrangling (40 pts)</h4>
+<pre class="r"><code>joined &lt;- left_join(tx_injuries, txmedianhouseholdincome)
+joined2 &lt;- na.omit(joined)
+joined2 %&gt;% filter(city == &quot;Austin&quot;)</code></pre>
+<pre><code>## # A tibble: 2 x 14
+##   injury_report_r… name_of_operati… city  st    injury_date ride_name serial_no
+##              &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;    
+## 1              690 Texas Bells and… Aust… TX    43005       Cedar Ro… ADM16GH-…
+## 2              690 Texas Bells and… Aust… TX    43005       Cedar Ro… N/A      
+## # … with 7 more variables: gender &lt;chr&gt;, age &lt;chr&gt;, body_part &lt;chr&gt;,
+## #   alleged_injury &lt;chr&gt;, cause_of_injury &lt;chr&gt;, other &lt;chr&gt;, value &lt;fct&gt;</code></pre>
+<pre class="r"><code>joined2 %&gt;% arrange(value)</code></pre>
+<pre><code>## # A tibble: 76 x 14
+##    injury_report_r… name_of_operati… city  st    injury_date ride_name serial_no
+##               &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;    
+##  1             2236 Skygroup Invest… Fris… TX    n/a         iFly Dal… 14R4     
+##  2             2236 Skygroup Invest… Fris… TX    42152       iFly Dal… SV02714R4
+##  3             2236 Skygroup Invest… Fris… TX    42161       iFly Dal… SKYVENTU…
+##  4             2236 Skygroup Invest… Fris… TX    42175       iFly Dal… SKYVENTU…
+##  5             1897 Willie G&#39;s Post… Galv… TX    3/2/2013    Gulf Gli… GS-11-10…
+##  6               99 Six Flags Fiest… San … TX    3/3/2013    Scooby D… n/a      
+##  7               99 Six Flags Fiest… San … TX    4/28/2013   Texas Tu… n/a      
+##  8               99 Six Flags Fiest… San … TX    4/28/2013   Texas Tu… n/a      
+##  9             1457 JW Marriott San… San … TX    7/7/2013    Cibolo F… 0851-C1-…
+## 10               63 Zuma Fun Center… Hous… TX    12/8/2013   Go-Karts  6638     
+## # … with 66 more rows, and 7 more variables: gender &lt;chr&gt;, age &lt;chr&gt;,
+## #   body_part &lt;chr&gt;, alleged_injury &lt;chr&gt;, cause_of_injury &lt;chr&gt;, other &lt;chr&gt;,
+## #   value &lt;fct&gt;</code></pre>
+<pre class="r"><code>joined2 %&gt;% select(contains(&quot;a&quot;))</code></pre>
+<pre><code>## # A tibble: 76 x 9
+##    name_of_operati… injury_date ride_name serial_no age   body_part
+##    &lt;chr&gt;            &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;    
+##  1 Willie G&#39;s Post… 3/2/2013    Gulf Gli… GS-11-10… 43    Knee     
+##  2 Six Flags Fiest… 3/3/2013    Scooby D… n/a       51    Lower Leg
+##  3 Six Flags Fiest… 4/28/2013   Texas Tu… n/a       40    Lower ba…
+##  4 Six Flags Fiest… 4/28/2013   Texas Tu… n/a       40    Lower ba…
+##  5 Six Flags Over … 5/27/2013   Batman    IC-T99    0     Neck     
+##  6 Splashtown - Sp… 6/24/2013   Treehouse n/a       4     Head     
+##  7 JW Marriott San… 7/7/2013    Cibolo F… 0851-C1-… 32    Right El…
+##  8 Wonderland Amus… 8/11/2013   Shoot th… 21001     n/a   Chest    
+##  9 Wonderland Amus… 8/31/2013   Shoot th… 21001     n/a   Ribs     
+## 10 Zuma Fun Center… 12/8/2013   Go-Karts  6638      19    Ankle in…
+## # … with 66 more rows, and 3 more variables: alleged_injury &lt;chr&gt;,
+## #   cause_of_injury &lt;chr&gt;, value &lt;fct&gt;</code></pre>
+<pre class="r"><code>joined2 %&gt;% mutate(ifelse(value &gt; 60000, &quot;high&quot;))</code></pre>
+<pre><code>## # A tibble: 76 x 15
+##    injury_report_r… name_of_operati… city  st    injury_date ride_name serial_no
+##               &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;    
+##  1             1897 Willie G&#39;s Post… Galv… TX    3/2/2013    Gulf Gli… GS-11-10…
+##  2               99 Six Flags Fiest… San … TX    3/3/2013    Scooby D… n/a      
+##  3               99 Six Flags Fiest… San … TX    4/28/2013   Texas Tu… n/a      
+##  4               99 Six Flags Fiest… San … TX    4/28/2013   Texas Tu… n/a      
+##  5              253 Six Flags Over … Arli… TX    5/27/2013   Batman    IC-T99   
+##  6              261 Splashtown - Sp… Spri… TX    6/24/2013   Treehouse n/a      
+##  7             1457 JW Marriott San… San … TX    7/7/2013    Cibolo F… 0851-C1-…
+##  8              305 Wonderland Amus… Amar… TX    8/11/2013   Shoot th… 21001    
+##  9              305 Wonderland Amus… Amar… TX    8/31/2013   Shoot th… 21001    
+## 10               63 Zuma Fun Center… Hous… TX    12/8/2013   Go-Karts  6638     
+## # … with 66 more rows, and 8 more variables: gender &lt;chr&gt;, age &lt;chr&gt;,
+## #   body_part &lt;chr&gt;, alleged_injury &lt;chr&gt;, cause_of_injury &lt;chr&gt;, other &lt;chr&gt;,
+## #   value &lt;fct&gt;, `ifelse(value &gt; 60000, &quot;high&quot;)` &lt;lgl&gt;</code></pre>
+<pre class="r"><code>joined2 %&gt;% summarize(mean(age, na.rm = T), n(), n_distinct(city))</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   `mean(age, na.rm = T)` `n()` `n_distinct(city)`
+##                    &lt;dbl&gt; &lt;int&gt;              &lt;int&gt;
+## 1                     NA    76                  9</code></pre>
+<pre class="r"><code>joined2 %&gt;% group_by(ride_name, city) %&gt;% summarize(mean_j = mean(age, 
+    na.rm = T), sd_j = sd(age, na.rm = T), n = n(), se_j = sd_j/sqrt(n))</code></pre>
+<pre><code>## # A tibble: 47 x 6
+## # Groups:   ride_name [47]
+##    ride_name           city          mean_j  sd_j     n  se_j
+##    &lt;chr&gt;               &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;
+##  1 Aquaman             Arlington         NA 20.1      3  11.6
+##  2 Batman              Arlington         NA 20.0      3  11.6
+##  3 Black Knight        New Braunfels     NA  7.07     2   5  
+##  4 Boogie Bath         New Braunfels     NA NA        1  NA  
+##  5 Cedar Rock Railroad Austin            NA NA        2  NA  
+##  6 Cibolo Falls 1      San Antonio       NA NA        1  NA  
+##  7 Crazy Legs          Arlington         NA NA        1  NA  
+##  8 Cyclone             Amarillo          NA NA        1  NA  
+##  9 Der Stuka           Arlington         NA NA        1  NA  
+## 10 Double Loop         New Braunfels     NA NA        1  NA  
+## # … with 37 more rows</code></pre>
+<pre class="r"><code>joined2 %&gt;% group_by(name_of_operation) %&gt;% summarize(mean_j = mean(age, 
+    na.rm = T), sd_j = sd(age, na.rm = T), n = n(), se_j = sd_j/sqrt(n))</code></pre>
+<pre><code>## # A tibble: 12 x 5
+##    name_of_operation                        mean_j  sd_j     n  se_j
+##  * &lt;chr&gt;                                     &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;
+##  1 JW Marriott San Antonio                      NA NA        1 NA   
+##  2 Schlitterbahn - New Braunfels                NA 18.3      5  8.21
+##  3 Schlitterbahn-New Branufels                  NA 12.3      9  4.09
+##  4 Six Flags - Hurricane Harbor                 NA 21.0      5  9.4 
+##  5 Six Flags Fiesta Texas                       NA  6.35     3  3.67
+##  6 Six Flags Over Texas                         NA 14.5     20  3.24
+##  7 Skygroup Investments LLC DBA iFly Dallas     NA  9.49     4  4.74
+##  8 Splashtown - Spring, TX                      NA 18.4     16  4.61
+##  9 Texas Bells and Whistles                     NA NA        2 NA   
+## 10 Willie G&#39;s Post Oak Inc. - Pleasure Pier     NA NA        1 NA   
+## 11 Wonderland Amusement Park                    NA 14.4      9  4.79
+## 12 Zuma Fun Center S Houston                    NA NA        1 NA</code></pre>
+<pre class="r"><code>joined2 %&gt;% group_by(injury_report_rec) %&gt;% summarize(mean_j = mean(age, 
+    na.rm = T), sd_j = sd(age, na.rm = T), n = n(), se_j = sd_j/sqrt(n))</code></pre>
+<pre><code>## # A tibble: 11 x 5
+##    injury_report_rec mean_j  sd_j     n  se_j
+##  *             &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;
+##  1                63     NA NA        1 NA   
+##  2                99     NA  6.35     3  3.67
+##  3               247     NA 14.0     14  3.75
+##  4               253     NA 14.5     20  3.24
+##  5               261     NA 18.4     16  4.61
+##  6               300     NA 21.0      5  9.4 
+##  7               305     NA 14.4      9  4.79
+##  8               690     NA NA        2 NA   
+##  9              1457     NA NA        1 NA   
+## 10              1897     NA NA        1 NA   
+## 11              2236     NA  9.49     4  4.74</code></pre>
+<p><em>The data was first filtered so that the only city whose data was shown was Austin. The data was then arranged in order of increasing value of median household income. The data was then selected to only show variables that started with the letter “a” (age and alleged_injury). The data was then mutated to categorize median household incomes above $60,000 as “high”. Then summary statistics were computed for the variables. For the variable age, summarize() was used after grouping by ride_name and city. It was discovered that the cities with high median household incomes had fewer incidents of injuries sustained in amusement parks.</em></p>
+</div>
+<div id="visualizing-30-pts" class="section level4">
+<h4>4. Visualizing (30 pts)</h4>
+<pre class="r"><code>joined2 %&gt;% select_if(is.numeric) %&gt;% cor %&gt;% as.data.frame %&gt;% 
+    rownames_to_column %&gt;% pivot_longer(-1) %&gt;% ggplot(aes(rowname, 
+    name, fill = value)) + geom_tile() + geom_text(aes(label = round(value, 
+    2))) + xlab(&quot;&quot;) + ylab(&quot;&quot;) + coord_fixed()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>joined2 %&gt;% mutate(name_of_operation = factor(name_of_operation, 
+    levels = c(&quot;Splashtown&quot;, &quot;Skygroup&quot;, &quot;Schlitterbahn&quot;, &quot;Typhoon&quot;, 
+        &quot;Six Flag&quot;))) %&gt;% ggplot(aes(name_of_operation, fill = alleged_injury)) + 
+    geom_bar() + coord_flip() + labs(title = &quot;Amusement Parks in Texas by Injuries&quot;, 
+    subtitle = &quot;Most Common Types of Injuries&quot;, fill = &quot;Type of Injuries&quot;, 
+    y = &quot;Number of Injuries&quot;, x = &quot;Amusement Parks&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(joined2, aes(x = value, y = injury_report_rec)) + geom_boxplot() + 
+    geom_jitter(alpha = 0.5) + aes(color = value)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-3.png" width="672" style="display: block; margin: auto;" />
+<em>In the first ggplot, it was shown that Six Flags has the highest number of injuries. In the second ggplot, the lowest median household income value had the highest number of injuries sustained, as predicted.</em></p>
+</div>
+<div id="dimensionality-reduction-30-pts" class="section level4">
+<h4>5. Dimensionality Reduction (30 pts)</h4>
+<pre class="r"><code>joined3 &lt;- joined2 %&gt;% select(-value, -injury_report_rec, -age)
+joined3 &lt;- joined2 %&gt;% select_if(is.numeric) %&gt;% scale
+rownames(joined3) &lt;- joined2$city
+joined2_pca &lt;- princomp(na.omit(joined3))
+names(joined2_pca)</code></pre>
+<pre><code>## [1] &quot;sdev&quot;     &quot;loadings&quot; &quot;center&quot;   &quot;scale&quot;    &quot;n.obs&quot;    &quot;scores&quot;   &quot;call&quot;</code></pre>
+<pre class="r"><code>eigval &lt;- joined2_pca$sdev^2
+varprop = round(eigval/sum(eigval), 2)
+ggplot() + geom_bar(aes(y = varprop, x = 1:22), stat = &quot;identity&quot;) + 
+    geom_text(aes(x = 1:22, y = varprop, label = round(varprop, 
+        2)), vjust = 1, col = &quot;white&quot;, size = 5) + scale_y_continuous(breaks = seq(0, 
+    0.6, 0.2), labels = scales::percent) + scale_x_continuous(breaks = 1:10) + 
+    labs(title = &quot;Proportion of Variance vs PCs&quot;, x = &quot;Principle Component&quot;, 
+        y = &quot;Variance Proportion&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>prepareddata &lt;- joined2 %&gt;% ungroup() %&gt;% select(-value, -injury_report_rec, 
+    -age)
+nums &lt;- prepareddata %&gt;% select_if(is.numeric) %&gt;% scale
+summary(joined2_pca, loadings = T)</code></pre>
+<pre><code>## Importance of components:
+##                           Comp.1
+## Standard deviation     0.9933993
+## Proportion of Variance 1.0000000
+## Cumulative Proportion  1.0000000
+## 
+## Loadings:
+##                   Comp.1
+## injury_report_rec 1</code></pre>
+<p><em>I took the joined2 dataset and cleaned the data by grabbing all numerics except value, injury_report_rec, and age. I then normalized the data and ran princomp() on the scaled data to see how many principal components to keep. I then squared to convert SDs to eigen values. I plotted the proportion of variance explained by each PC from greatest to least eigen values, picked PCs until the scree plot flattened, and picked PCs whose eigen values are greater than 1 to determine how many PCs to keep.</em></p>
+<pre class="r"><code>## paste this chunk into the ```{r setup} chunk at the top of
+## your project 1 .Rmd file
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = &quot;center&quot;, 
+    warning = F, message = F, tidy = TRUE, tidy.opts = list(width.cutoff = 60), 
+    R.options = list(max.print = 100))</code></pre>
+<p>…</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
