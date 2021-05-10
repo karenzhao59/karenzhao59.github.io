@@ -7,7 +7,7 @@
     <meta name="author" content="Karen Zhao" />
     
     <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
-    <title>New Post</title>
+    <title>Python</title>
     <meta name="generator" content="Hugo 0.83.1" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
@@ -54,7 +54,7 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="../../../../../post/2021/05/10/new-post/">New Post</a></strong>
+            <strong><a href="../../../../../post/2021/05/10/new-post/">Python</a></strong>
           </h3>
         </div>
  
@@ -72,8 +72,31 @@
               
 
 
-<p><a href="../../../../../project/project1/">Link to project 1</a></p>
-<p><a href="https://www.google.com">Link to google</a></p>
+<p><img src="../../../../../post/2021-05-10-new-post_files/pandas.png" />
+We learned Python in addition to R at the end of our computational biology course. One of my favorite things that we learned is the use of Pandas. Pandas is used for data manipulation and data wrangling. See:</p>
+<pre class="python"><code>import pandas as pd
+import numpy as np 
+cw=pd.read_csv(&quot;https://raw.githubusercontent.com/selva86/datasets/master/ChickWeight.csv&quot;, index_col=0)
+print(cw.head())</code></pre>
+<pre><code>##         Time  Chick  Diet
+## weight                   
+## 42         0      1     1
+## 51         4      1     1
+## 59         8      1     1
+## 64        12      1     1
+## 76        16      1     1</code></pre>
+<p>A cool function in Pandas is describe, which gives some numerical evaluations of the variables in the dataset, including minimum, maximum, mean, and standard deviation.
+See:</p>
+<pre class="python"><code>print(cw.describe())</code></pre>
+<pre><code>##              Time       Chick        Diet
+## count  578.000000  578.000000  578.000000
+## mean    21.435986   25.750865    2.235294
+## std     13.516799   14.568795    1.162678
+## min      0.000000    1.000000    1.000000
+## 25%      8.000000   13.000000    1.000000
+## 50%     20.000000   26.000000    2.000000
+## 75%     32.000000   38.000000    3.000000
+## max     42.000000   50.000000    4.000000</code></pre>
 
             
         <hr>         <div class="related-posts">

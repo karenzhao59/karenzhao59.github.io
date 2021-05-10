@@ -1,18 +1,25 @@
 ---
-title: New Post
+title: Python
 author: 'Karen Zhao'
 date: '2021-05-10'
 slug: new-post
 categories: []
 tags: []
-description: 'a bunch of nonsense'
+description: ''
 ---
-[Link to project 1](/project/project1/)
 
-[Link to google](https://www.google.com)
-
-```{r}
-```
+![](/post/2021-05-10-new-post_files/pandas.png)
+We learned Python in addition to R at the end of our computational biology course. One of my favorite things that we learned is the use of Pandas. Pandas is used for data manipulation and data wrangling. See:
 
 ```{python}
+import pandas as pd
+import numpy as np 
+cw=pd.read_csv("https://raw.githubusercontent.com/selva86/datasets/master/ChickWeight.csv", index_col=0)
+print(cw.head())
+```
+A cool function in Pandas is describe, which gives some numerical evaluations of the variables in the dataset, including minimum, maximum, mean, and standard deviation. 
+See:
+
+```{python}
+print(cw.describe())
 ```
