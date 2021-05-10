@@ -1,5 +1,5 @@
 ---
-title: Python
+title: Python and R
 author: 'Karen Zhao'
 date: '2021-05-10'
 slug: new-post
